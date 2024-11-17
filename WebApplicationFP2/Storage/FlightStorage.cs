@@ -26,15 +26,15 @@ namespace WebApplicationFP2.Storage
             _flights.RemoveAll(f => f.Id == id); 
         }
 
-        public static bool FlightExists(Flight flight)
-        {
-            return _flights.Any(f =>
-                f.From.AirportCode == flight.From.AirportCode &&
-                f.To.AirportCode == flight.To.AirportCode &&
-                f.Carrier == flight.Carrier &&
-                f.DepartureTime == flight.DepartureTime &&
-                f.ArrivalTime == flight.ArrivalTime);
-        }
+        //public static bool FlightExists(Flight flight)
+        //{
+        //    return _flights.Any(f =>
+        //        f.From.AirportCode == flight.From.AirportCode &&
+        //        f.To.AirportCode == flight.To.AirportCode &&
+        //        f.Carrier == flight.Carrier &&
+        //        f.DepartureTime == flight.DepartureTime &&
+        //        f.ArrivalTime == flight.ArrivalTime);
+        //}
 
         public static List<Airport> GetUniqueAirports()
         {

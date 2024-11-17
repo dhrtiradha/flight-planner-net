@@ -20,16 +20,20 @@ namespace WebApplicationFP2.Storage
             Airports.Clear();
         }
 
-        public static List<Airport> SearchAirports(string query)
+        public static List<Airport> SearchThroughAirports(string query)
         {
             if (string.IsNullOrWhiteSpace(query))
                 return new List<Airport>();
 
             var trimmedQuery = query.Trim().ToUpper();
-
-            return Airports
-                .Where(a => a.AirportCode.ToUpper().Contains(trimmedQuery))
+            var searchResults = Airports
+                .Where(a => a.AirportCode.ToUpper().Contains(trimmedQuery) ||
+                            a.City.ToUpper().Contains(trimmedQuery) || 
+                            a.Country.ToUpper().Contains(trimmedQuery))
+                .DistinctBy(a => a.AirportCode)
                 .ToList();
+
+            return searchResults;
         }
     }
 }

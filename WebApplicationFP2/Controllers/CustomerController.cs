@@ -21,13 +21,7 @@ namespace WebApplicationFP2.Controllers
                 return BadRequest("Search query cannot be empty.");
             }
 
-            var trimmedSearch = search.Trim().ToLower();
-
-            var matchingAirports = AirportStorage.Airports
-                .Where(a => a.AirportCode.ToLower().Contains(trimmedSearch) ||
-                            a.City.ToLower().Contains(trimmedSearch) ||
-                            a.Country.ToLower().Contains(trimmedSearch))
-                .ToList();
+            var matchingAirports = AirportStorage.SearchThroughAirports(search);
 
             if (!matchingAirports.Any())
             {
