@@ -21,6 +21,11 @@ namespace WebApplicationFP2.Storage
             _flights.Clear();
         }
 
+        public static void DeleteFlight(int id)
+        {
+            _flights.RemoveAll(f => f.Id == id); 
+        }
+
         public static bool FlightExists(Flight flight)
         {
             return _flights.Any(f =>
@@ -30,5 +35,35 @@ namespace WebApplicationFP2.Storage
                 f.DepartureTime == flight.DepartureTime &&
                 f.ArrivalTime == flight.ArrivalTime);
         }
+
+        public static List<Airport> GetUniqueAirports()
+        {
+            return _flights
+                .SelectMany(f => new[] { f.From, f.To })
+                .DistinctBy(a => a.AirportCode)         
+                .ToList();
+        }
+
+        public static Flight GetFlightById(int id)
+        {
+            return _flights.FirstOrDefault(f => f.Id == id);  
+        }
+
+        public static List<Flight> GetAllFlights()
+        {
+            return _flights;
+        }
+
+        public static List<Flight> GetFlightsByCriteria(string from, string to, DateTime departureDate)
+        {
+            return _flights
+                .Where(f =>
+                    f.From.AirportCode.Equals(from, StringComparison.OrdinalIgnoreCase) &&
+                    f.To.AirportCode.Equals(to, StringComparison.OrdinalIgnoreCase) &&
+                    DateTime.TryParse(f.DepartureTime, out var flightDepartureTime) &&
+                    flightDepartureTime.Date == departureDate.Date)  
+                .ToList();
+        }
+
     }
 }

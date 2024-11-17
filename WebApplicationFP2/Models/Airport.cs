@@ -6,7 +6,6 @@ namespace WebApplicationFP2.Models
     {
         public string Country { get; set; }
         public string City { get; set; }
-        [JsonPropertyName("airport")]
-        public string AirportCode { get; set; }
+        [JsonPropertyName("airport")] public string AirportCode { get; set; }
     }
 }

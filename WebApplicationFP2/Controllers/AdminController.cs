@@ -53,9 +53,33 @@ namespace WebApplicationFP2.Controllers
             }
             else
             {
-                var addedFlight = FlightStorage.AddFlight(flight); 
+                AddAirportIfNotExists(flight.From);
+                AddAirportIfNotExists(flight.To);
+
+                var addedFlight = FlightStorage.AddFlight(flight);
                 return Created("", addedFlight);
             }
+
+
+        }
+
+        private void AddAirportIfNotExists(Airport airport)
+        {
+            if (!AirportStorage.Airports.Any(a =>
+                    string.Equals(a.AirportCode, airport.AirportCode, StringComparison.OrdinalIgnoreCase)))
+            {
+                AirportStorage.AddAirport(airport);
+            }
+        }
+
+        [HttpDelete]
+        [Route("flights/{id}")]
+        public IActionResult DeleteFlight(int id)
+        {
+
+            FlightStorage.DeleteFlight(id);
+            return Ok();
+
         }
     }
 }
