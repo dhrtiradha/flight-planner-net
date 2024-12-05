@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.EntityFrameworkCore;
 using WebApplicationFP2.Database;
 using WebApplicationFP2.Handler;
+using WebApplicationFP2.Storage;
 
 namespace WebApplicationFP2
 {
@@ -23,7 +24,8 @@ namespace WebApplicationFP2
             }));
 
             builder.Services.AddDbContext<FlightPlannerDbContext>(options =>
-                options.UseSqlServer("name=ConnectionStrings:DefaultConnection"));
+                options.UseSqlServer(builder.Configuration.GetConnectionString("flight-planner")));
+            builder.Services.AddScoped<FlightStorage>();
 
             builder.Services.AddControllers();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

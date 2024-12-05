@@ -1,27 +1,32 @@
 ﻿using Microsoft.AspNetCore.Components.Web;
+using WebApplicationFP2.Database;
 using WebApplicationFP2.Models;
 
 namespace WebApplicationFP2.Storage
 {
-    public static class FlightStorage
+    public class FlightStorage
     {
-        private static List<Flight> _flights = new List<Flight>();
-        private static int _id = 0;
+        private readonly FlightPlannerDbContext _context;
 
-        public static Flight AddFlight(Flight flight)
+        public FlightStorage(FlightPlannerDbContext context)
         {
-            flight.Id = ++_id;
-            _flights.Add(flight);
+            _context = context;
+        }
+
+        public Flight AddFlight(Flight flight)
+        {
+            _context.Flights.Add(flight);
+            _context.SaveChanges();
 
             return flight;
         }
 
-        public static void ClearFlights()
+        public void ClearFlights()
         {
-            _flights.Clear();
+            _context.Flights.RemoveRange();
         }
 
-        public static void DeleteFlight(int id)
+        public void DeleteFlight(int id)
         {
             _flights.RemoveAll(f => f.Id == id); 
         }
@@ -36,7 +41,7 @@ namespace WebApplicationFP2.Storage
         //        f.ArrivalTime == flight.ArrivalTime);
         //}
 
-        public static List<Airport> GetUniqueAirports()
+        public List<Airport> GetUniqueAirports()
         {
             return _flights
                 .SelectMany(f => new[] { f.From, f.To })
@@ -44,17 +49,17 @@ namespace WebApplicationFP2.Storage
                 .ToList();
         }
 
-        public static Flight GetFlightById(int id)
+        public Flight GetFlightById(int id)
         {
             return _flights.FirstOrDefault(f => f.Id == id);  
         }
 
-        public static List<Flight> GetAllFlights()
+        public List<Flight> GetAllFlights()
         {
             return _flights;
         }
 
-        public static List<Flight> GetFlightsByCriteria(string from, string to, DateTime departureDate)
+        public List<Flight> GetFlightsByCriteria(string from, string to, DateTime departureDate)
         {
             return _flights
                 .Where(f =>

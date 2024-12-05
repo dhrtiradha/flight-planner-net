@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using WebApplicationFP2.Database;
 using WebApplicationFP2.Models;
 using WebApplicationFP2.Storage;
 
@@ -12,6 +13,12 @@ namespace WebApplicationFP2.Controllers
     public class AdminController : ControllerBase
     {
         private static readonly object _lock = new object();
+        private readonly FlightStorage _storage;
+
+        public AdminController(FlightStorage storage)
+        {
+            _storage = storage;
+        }
 
         [Route("flights/{id}")]
         [HttpGet]
@@ -68,9 +75,10 @@ namespace WebApplicationFP2.Controllers
                 { 
                     AirportStorage.AddAirport(flight.From); 
                     AirportStorage.AddAirport(flight.To);
-                    
-                    var addedFlight = FlightStorage.AddFlight(flight); 
-                    return Created("", addedFlight);
+
+                    _storage.AddFlight(flight);
+
+                    return Created("", flight);
                 }
             }
         }
