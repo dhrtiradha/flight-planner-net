@@ -12,6 +12,13 @@ namespace WebApplicationFP2.Controllers
     [ApiController]
     public class CustomerController : ControllerBase
     {
+        private readonly FlightStorage _storage;
+
+        public CustomerController(FlightStorage storage)
+        {
+            _storage = storage;
+        }
+
         [HttpGet]
         [Route("airports")]
         public IActionResult SearchAirports(string search)
@@ -51,7 +58,7 @@ namespace WebApplicationFP2.Controllers
                 return BadRequest("Invalid date format.");
             }
 
-            var flights = FlightStorage.GetFlightsByCriteria(request.From, request.To, parsedDate);
+            var flights = _storage.GetFlightsByCriteria(request.From, request.To, parsedDate);
 
             if (!flights.Any())
             {
@@ -75,7 +82,7 @@ namespace WebApplicationFP2.Controllers
         [Route("flights/{id}")]
         public IActionResult GetFlightById(int id)
         {
-            var flight = FlightStorage.GetFlightById(id);
+            var flight = _storage.GetFlightById(id);
             if (flight == null)
             {
                 return NotFound();

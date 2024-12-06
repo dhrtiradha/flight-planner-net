@@ -58,7 +58,7 @@ namespace WebApplicationFP2.Controllers
                     return BadRequest("Invalid date format.");
                 }
                 
-                var flights = FlightStorage.GetAllFlights(); 
+                var flights = _storage.GetAllFlights(); 
                 var matchingFlights = flights.Where(f =>
                 f.From.AirportCode == flight.From.AirportCode &&
                 f.To.AirportCode == flight.To.AirportCode &&
@@ -87,7 +87,7 @@ namespace WebApplicationFP2.Controllers
         [Route("flights/{id}")]
         public IActionResult DeleteFlight(int id)
         {
-            FlightStorage.DeleteFlight(id);
+            _storage.DeleteFlight(id);
             return Ok();
         }
     }

@@ -23,12 +23,15 @@ namespace WebApplicationFP2.Storage
 
         public void ClearFlights()
         {
-            _context.Flights.RemoveRange();
+            _context.Flights.RemoveRange(_context.Flights);
+            _context.Airports.RemoveRange(_context.Airports);
+            _context.SaveChanges();
         }
 
         public void DeleteFlight(int id)
         {
-            _flights.RemoveAll(f => f.Id == id); 
+            _context.Flights.RemoveRange(_context.Flights);
+            _context.SaveChanges();
         }
 
         //public static bool FlightExists(Flight flight)
@@ -43,32 +46,33 @@ namespace WebApplicationFP2.Storage
 
         public List<Airport> GetUniqueAirports()
         {
-            return _flights
-                .SelectMany(f => new[] { f.From, f.To })
+            return _context.Flights
+                .SelectMany(f => new[] { f.From, f.To }) 
                 .DistinctBy(a => a.AirportCode)         
                 .ToList();
         }
 
         public Flight GetFlightById(int id)
         {
-            return _flights.FirstOrDefault(f => f.Id == id);  
+            return _context.Flights.FirstOrDefault(f => f.Id == id);
         }
 
         public List<Flight> GetAllFlights()
         {
-            return _flights;
+            return _context.Flights.ToList();
         }
 
         public List<Flight> GetFlightsByCriteria(string from, string to, DateTime departureDate)
         {
-            return _flights
+            return _context.Flights
                 .Where(f =>
                     f.From.AirportCode.Equals(from, StringComparison.OrdinalIgnoreCase) &&
-                    f.To.AirportCode.Equals(to, StringComparison.OrdinalIgnoreCase) &&
+                    f.To.AirportCode.Equals(to, StringComparison.OrdinalIgnoreCase))
+                .AsEnumerable() 
+                .Where(f =>
                     DateTime.TryParse(f.DepartureTime, out var flightDepartureTime) &&
-                    flightDepartureTime.Date == departureDate.Date)  
+                    flightDepartureTime.Date == departureDate.Date)
                 .ToList();
         }
-
     }
 }
