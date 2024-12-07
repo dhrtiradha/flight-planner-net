@@ -57,29 +57,18 @@ namespace WebApplicationFP2.Controllers
                 { 
                     return BadRequest("Invalid date format.");
                 }
-                
-                var flights = _storage.GetAllFlights(); 
-                var matchingFlights = flights.Where(f =>
-                f.From.AirportCode == flight.From.AirportCode &&
-                f.To.AirportCode == flight.To.AirportCode &&
-                f.Carrier == flight.Carrier &&
-                f.DepartureTime == flight.DepartureTime &&
-                f.ArrivalTime == flight.ArrivalTime
-                ).ToList();
-                
-                if (matchingFlights.Any()) 
-                { 
-                    return Conflict("The flight already exists.");
+
+                if (!_storage.IsFlightUnique(flight))
+                {
+                    return Conflict("Flight already exists.");
                 }
-                else 
-                { 
+
                     AirportStorage.AddAirport(flight.From); 
                     AirportStorage.AddAirport(flight.To);
 
                     _storage.AddFlight(flight);
 
                     return Created("", flight);
-                }
             }
         }
 
@@ -88,6 +77,7 @@ namespace WebApplicationFP2.Controllers
         public IActionResult DeleteFlight(int id)
         {
             _storage.DeleteFlight(id);
+
             return Ok();
         }
     }

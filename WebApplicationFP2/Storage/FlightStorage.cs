@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Components.Web;
+using Microsoft.EntityFrameworkCore;
 using WebApplicationFP2.Database;
 using WebApplicationFP2.Models;
 
@@ -34,15 +35,16 @@ namespace WebApplicationFP2.Storage
             _context.SaveChanges();
         }
 
-        //public static bool FlightExists(Flight flight)
-        //{
-        //    return _flights.Any(f =>
-        //        f.From.AirportCode == flight.From.AirportCode &&
-        //        f.To.AirportCode == flight.To.AirportCode &&
-        //        f.Carrier == flight.Carrier &&
-        //        f.DepartureTime == flight.DepartureTime &&
-        //        f.ArrivalTime == flight.ArrivalTime);
-        //}
+        public bool IsFlightUnique(Flight flight)
+        {
+            return !_context.Flights.Any(f =>
+                f.From.AirportCode == flight.From.AirportCode &&
+                f.To.AirportCode == flight.To.AirportCode &&
+                f.Carrier == flight.Carrier &&
+                f.DepartureTime == flight.DepartureTime &&
+                f.ArrivalTime == flight.ArrivalTime
+            );
+        }
 
         public List<Airport> GetUniqueAirports()
         {
