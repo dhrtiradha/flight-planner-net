@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using WebApplicationFP2.Database;
 using WebApplicationFP2.Models;
 using WebApplicationFP2.Storage;
 
@@ -12,6 +13,12 @@ namespace WebApplicationFP2.Controllers
     public class AdminController : ControllerBase
     {
         private static readonly object _lock = new object();
+        private readonly FlightStorage _storage;
+
+        public AdminController(FlightStorage storage)
+        {
+            _storage = storage;
+        }
 
         [Route("flights/{id}")]
         [HttpGet]
@@ -50,28 +57,18 @@ namespace WebApplicationFP2.Controllers
                 { 
                     return BadRequest("Invalid date format.");
                 }
-                
-                var flights = FlightStorage.GetAllFlights(); 
-                var matchingFlights = flights.Where(f =>
-                f.From.AirportCode == flight.From.AirportCode &&
-                f.To.AirportCode == flight.To.AirportCode &&
-                f.Carrier == flight.Carrier &&
-                f.DepartureTime == flight.DepartureTime &&
-                f.ArrivalTime == flight.ArrivalTime
-                ).ToList();
-                
-                if (matchingFlights.Any()) 
-                { 
-                    return Conflict("The flight already exists.");
+
+                if (!_storage.IsFlightUnique(flight))
+                {
+                    return Conflict("Flight already exists.");
                 }
-                else 
-                { 
-                    AirportStorage.AddAirport(flight.From); 
-                    AirportStorage.AddAirport(flight.To);
-                    
-                    var addedFlight = FlightStorage.AddFlight(flight); 
-                    return Created("", addedFlight);
-                }
+
+                _storage.AddAirport(flight.From); 
+                _storage.AddAirport(flight.To);
+
+                _storage.AddFlight(flight);
+
+                return Created("", flight);
             }
         }
 
@@ -79,10 +76,14 @@ namespace WebApplicationFP2.Controllers
         [Route("flights/{id}")]
         public IActionResult DeleteFlight(int id)
         {
+            var result = _storage.DeleteFlight(id);
 
-            FlightStorage.DeleteFlight(id);
+            if (result == null)
+            {
+                return NotFound(); 
+            }
+
             return Ok();
-
         }
     }
 }
