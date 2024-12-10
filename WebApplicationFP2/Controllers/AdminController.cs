@@ -76,7 +76,12 @@ namespace WebApplicationFP2.Controllers
         [Route("flights/{id}")]
         public IActionResult DeleteFlight(int id)
         {
-            _storage.DeleteFlight(id);
+            var result = _storage.DeleteFlight(id);
+
+            if (result == null)
+            {
+                return NotFound(); 
+            }
 
             return Ok();
         }

@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Components.Web;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
 using WebApplicationFP2.Database;
 using WebApplicationFP2.Models;
@@ -30,10 +31,19 @@ namespace WebApplicationFP2.Storage
             _context.SaveChanges();
         }
 
-        public void DeleteFlight(int id)
+        public bool DeleteFlight(int id)
         {
-            _context.Flights.RemoveRange(_context.Flights);
-            _context.SaveChanges();
+            var flight = _context.Flights.FirstOrDefault(f => f.Id == id);
+
+            if (flight == null)
+            {
+                return false; 
+            }
+
+            _context.Flights.Remove(flight); 
+            _context.SaveChanges(); 
+
+            return true;
         }
 
         public bool IsFlightUnique(Flight flight)
@@ -57,7 +67,10 @@ namespace WebApplicationFP2.Storage
 
         public Flight GetFlightById(int id)
         {
-            return _context.Flights.FirstOrDefault(f => f.Id == id);
+            return _context.Flights
+                .Include(f => f.From) 
+                .Include(f => f.To)   
+                .FirstOrDefault(f => f.Id == id);
         }
 
         public List<Flight> GetAllFlights()
@@ -90,12 +103,12 @@ namespace WebApplicationFP2.Storage
 
         public IEnumerable<Airport> SearchAirports(string search)
         {
-            var trimmedSearch = search.Trim().ToUpper(); 
+            var trimmedSearch = search.Trim().ToLower(); 
 
             return _context.Airports
-                .Where(a => a.AirportCode.Contains(trimmedSearch, StringComparison.OrdinalIgnoreCase) ||
-                            a.City.Contains(trimmedSearch, StringComparison.OrdinalIgnoreCase) ||
-                            a.Country.Contains(trimmedSearch, StringComparison.OrdinalIgnoreCase))
+                .Where(a => a.AirportCode.ToLower().Contains(trimmedSearch) ||
+                            a.City.ToLower().Contains(trimmedSearch) ||
+                            a.Country.ToLower().Contains(trimmedSearch))
                 .ToList();
         }
     }
