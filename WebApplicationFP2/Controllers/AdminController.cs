@@ -63,12 +63,12 @@ namespace WebApplicationFP2.Controllers
                     return Conflict("Flight already exists.");
                 }
 
-                    AirportStorage.AddAirport(flight.From); 
-                    AirportStorage.AddAirport(flight.To);
+                _storage.AddAirport(flight.From); 
+                _storage.AddAirport(flight.To);
 
-                    _storage.AddFlight(flight);
+                _storage.AddFlight(flight);
 
-                    return Created("", flight);
+                return Created("", flight);
             }
         }
 

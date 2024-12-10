@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using WebApplicationFP2.Database;
 using WebApplicationFP2.Models;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace WebApplicationFP2.Storage
 {
@@ -66,14 +67,35 @@ namespace WebApplicationFP2.Storage
 
         public List<Flight> GetFlightsByCriteria(string from, string to, DateTime departureDate)
         {
+            var targetDate = departureDate.Date;
+
             return _context.Flights
                 .Where(f =>
-                    f.From.AirportCode.Equals(from, StringComparison.OrdinalIgnoreCase) &&
-                    f.To.AirportCode.Equals(to, StringComparison.OrdinalIgnoreCase))
+                    f.From.AirportCode.ToLower() == from.ToLower() &&
+                    f.To.AirportCode.ToLower() == to.ToLower())
                 .AsEnumerable() 
                 .Where(f =>
                     DateTime.TryParse(f.DepartureTime, out var flightDepartureTime) &&
-                    flightDepartureTime.Date == departureDate.Date)
+                    flightDepartureTime.Date == targetDate)
+                .ToList();
+        }
+
+        public void AddAirport(Airport airport)
+        {
+            if (airport != null && !string.IsNullOrEmpty(airport.AirportCode))
+            {
+                _context.Add(airport);
+            }
+        }
+
+        public IEnumerable<Airport> SearchAirports(string search)
+        {
+            var trimmedSearch = search.Trim().ToUpper(); 
+
+            return _context.Airports
+                .Where(a => a.AirportCode.Contains(trimmedSearch, StringComparison.OrdinalIgnoreCase) ||
+                            a.City.Contains(trimmedSearch, StringComparison.OrdinalIgnoreCase) ||
+                            a.Country.Contains(trimmedSearch, StringComparison.OrdinalIgnoreCase))
                 .ToList();
         }
     }
