@@ -44,10 +44,36 @@ namespace FlightPlanner.Services
         public bool IsFlightUnique(Flight flight)
         {
             return !_context.Flights.Any(existingFlight =>
-                existingFlight.From == flight.From &&
-                existingFlight.To == flight.To &&
+                existingFlight.From.AirportCode == flight.From.AirportCode &&
+                existingFlight.To.AirportCode == flight.To.AirportCode &&
                 existingFlight.DepartureTime == flight.DepartureTime &&
                 existingFlight.ArrivalTime == flight.ArrivalTime);
+        }
+
+        public IEnumerable<Airport> SearchAirports(string search)
+        {
+            var trimmedSearch = search.Trim().ToLower();
+
+            return _context.Airports
+                .Where(a => a.AirportCode.ToLower().Contains(trimmedSearch) ||
+                            a.City.ToLower().Contains(trimmedSearch) ||
+                            a.Country.ToLower().Contains(trimmedSearch))
+                .ToList();
+        }
+
+        public List<Flight> GetFlightsByCriteria(string from, string to, DateTime departureDate)
+        {
+            var targetDate = departureDate.Date;
+
+            return _context.Flights
+                .Where(f =>
+                    f.From.AirportCode.ToLower() == from.ToLower() &&
+                    f.To.AirportCode.ToLower() == to.ToLower())
+                .AsEnumerable()
+                .Where(f =>
+                    DateTime.TryParse(f.DepartureTime, out var flightDepartureTime) &&
+                    flightDepartureTime.Date == targetDate)
+                .ToList();
         }
     }
 }

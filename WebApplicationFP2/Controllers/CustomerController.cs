@@ -4,6 +4,7 @@ using System;
 using System.Runtime.InteropServices.JavaScript;
 using FlightPlanner.Core.Models;
 using FlightPlanner.Core.Services;
+using WebApplicationFP2.Models;
 
 
 namespace WebApplicationFP2.Controllers
@@ -14,64 +15,64 @@ namespace WebApplicationFP2.Controllers
     {
         private readonly IEntityService<Flight> _flightService = flightService;
 
-        //[HttpGet]
-        //[Route("airports")]
-        //public IActionResult SearchAirports(string search)
-        //{
-        //    if (string.IsNullOrWhiteSpace(search))
-        //    {
-        //        return BadRequest("Search query cannot be empty.");
-        //    }
+        [HttpGet]
+        [Route("airports")]
+        public IActionResult SearchAirports(string search)
+        {
+            if (string.IsNullOrWhiteSpace(search))
+            {
+                return BadRequest("Search query cannot be empty.");
+            }
 
-        //    var matchingAirports = _flightService.SearchAirports(search);
+            var matchingAirports = _flightService.SearchAirports(search);
 
-        //    if (!matchingAirports.Any())
-        //    {
-        //        return Ok(new List<Airport>());
-        //    }
+            if (!matchingAirports.Any())
+            {
+                return Ok(new List<Airport>());
+            }
 
-        //    return Ok(matchingAirports);
-        //}
+            return Ok(matchingAirports);
+        }
 
-        
-        //[HttpPost]
-        //[Route("flights/search")]
-        //public IActionResult SearchFlights([FromBody] SearchFlightsRequest request)
-        //{
-        //    if (request == null || string.IsNullOrWhiteSpace(request.From) || string.IsNullOrWhiteSpace(request.To))
-        //    {
-        //        return BadRequest("Invalid request.");
-        //    }
 
-        //    if (request.From.Equals(request.To, StringComparison.OrdinalIgnoreCase))
-        //    {
-        //        return BadRequest("Airports cannot be the same.");
-        //    }
+        [HttpPost]
+        [Route("flights/search")]
+        public IActionResult SearchFlights([FromBody] SearchFlightRequest request)
+        {
+            if (request == null || string.IsNullOrWhiteSpace(request.From) || string.IsNullOrWhiteSpace(request.To))
+            {
+                return BadRequest("Invalid request.");
+            }
 
-        //    if (!DateTime.TryParse(request.DepartureDate, out DateTime parsedDate))
-        //    {
-        //        return BadRequest("Invalid date format.");
-        //    }
+            if (request.From.Equals(request.To, StringComparison.OrdinalIgnoreCase))
+            {
+                return BadRequest("Airports cannot be the same.");
+            }
 
-        //    var flights = _flightService.GetFlightsByCriteria(request.From, request.To, parsedDate);
+            if (!DateTime.TryParse(request.DepartureDate, out DateTime parsedDate))
+            {
+                return BadRequest("Invalid date format.");
+            }
 
-        //    if (!flights.Any())
-        //    {
-        //        return Ok(new PageResult<Flight>
-        //        {
-        //            Page = 0,
-        //            TotalItems = 0,
-        //            Items = new List<Flight>()
-        //        });
-        //    }
+            var flights = _flightService.GetFlightsByCriteria(request.From, request.To, parsedDate);
 
-        //    return Ok(new PageResult<Flight>
-        //    {
-        //        Page = 0,
-        //        TotalItems = flights.Count,
-        //        Items = flights
-        //    });
-        //}
+            if (!flights.Any())
+            {
+                return Ok(new PageResult<Flight>
+                {
+                    Page = 0,
+                    TotalItems = 0,
+                    Items = new List<Flight>()
+                });
+            }
+
+            return Ok(new PageResult<Flight>
+            {
+                Page = 0,
+                TotalItems = flights.Count,
+                Items = flights
+            });
+        }
 
         [HttpGet]
         [Route("flights/{id}")]

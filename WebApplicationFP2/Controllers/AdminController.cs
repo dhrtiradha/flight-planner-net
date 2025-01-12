@@ -34,9 +34,9 @@ namespace WebApplicationFP2.Controllers
         [Route("flights")]
         public IActionResult AddFlight(FlightRequest request)
         {
-            var flight = GetFromRequest(request);
             lock (_lock)
             {
+                var flight = GetFromRequest(request);
                 if (flight.From == null || flight.To == null || string.IsNullOrEmpty(flight.Carrier) ||
                 string.IsNullOrEmpty(flight.DepartureTime) || string.IsNullOrEmpty(flight.ArrivalTime) ||
                 string.IsNullOrEmpty(flight.From.AirportCode) || string.IsNullOrEmpty(flight.To.AirportCode)) 
@@ -79,8 +79,14 @@ namespace WebApplicationFP2.Controllers
         [Route("flights/{id}")]
         public IActionResult DeleteFlight(int id)
         {
-            var flightId = _flightService.GetById(id);
-            var result = _flightService.Delete(flightId);
+            var flight = _flightService.GetById(id);
+
+            if (flight == null)
+            {
+                return Ok();
+            }
+
+            var result = _flightService.Delete(flight);
 
             if (result == null)
             {
