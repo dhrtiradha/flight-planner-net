@@ -41,39 +41,19 @@ namespace FlightPlanner.Services
             return List<T>();
         }
 
-        public bool IsFlightUnique(Flight flight)
+        public bool IsFlightUnique(Flight entity)
         {
-            return !_context.Flights.Any(existingFlight =>
-                existingFlight.From.AirportCode == flight.From.AirportCode &&
-                existingFlight.To.AirportCode == flight.To.AirportCode &&
-                existingFlight.DepartureTime == flight.DepartureTime &&
-                existingFlight.ArrivalTime == flight.ArrivalTime);
+            return IsFlightUnique<T>;
         }
 
-        public IEnumerable<Airport> SearchAirports(string search)
+        public IEnumerable<Airport> SearchAirports(string search) 
         {
-            var trimmedSearch = search.Trim().ToLower();
-
-            return _context.Airports
-                .Where(a => a.AirportCode.ToLower().Contains(trimmedSearch) ||
-                            a.City.ToLower().Contains(trimmedSearch) ||
-                            a.Country.ToLower().Contains(trimmedSearch))
-                .ToList();
+            return SearchAirports<T>(search);
         }
 
-        public List<Flight> GetFlightsByCriteria(string from, string to, DateTime departureDate)
+        public List<T> GetFlightsByCriteria(string from, string to, DateTime departureDate)
         {
-            var targetDate = departureDate.Date;
-
-            return _context.Flights
-                .Where(f =>
-                    f.From.AirportCode.ToLower() == from.ToLower() &&
-                    f.To.AirportCode.ToLower() == to.ToLower())
-                .AsEnumerable()
-                .Where(f =>
-                    DateTime.TryParse(f.DepartureTime, out var flightDepartureTime) &&
-                    flightDepartureTime.Date == targetDate)
-                .ToList();
+            return GetFlightsByCriteria(from, to, departureDate);
         }
     }
 }

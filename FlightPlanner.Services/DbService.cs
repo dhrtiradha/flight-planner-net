@@ -53,6 +53,42 @@ namespace FlightPlanner.Services
             return _context.Set<T>().ToList();
         }
 
+        //TODO: need to fix these three methods below. Some problems with refactoring process
+        //some problems with bool method??? Has to be also a mention in the Interface classes
 
+        public bool IsFlightUnique<T>(T entity) where T : Flight
+        {
+            return !_context.Flights.Any(existingFlight =>
+                existingFlight.From.AirportCode == entity.From.AirportCode &&
+                existingFlight.To.AirportCode == entity.To.AirportCode &&
+                existingFlight.DepartureTime == entity.DepartureTime &&
+                existingFlight.ArrivalTime == entity.ArrivalTime);
+        }
+
+        public IEnumerable<Airport> SearchAirports<T>(string search) 
+        {
+            var trimmedSearch = search.Trim().ToLower();
+
+            return _context.Airports
+                .Where(a => a.AirportCode.ToLower().Contains(trimmedSearch) ||
+                            a.City.ToLower().Contains(trimmedSearch) ||
+                            a.Country.ToLower().Contains(trimmedSearch))
+                .ToList();
+        }
+
+        public List<Flight> GetFlightsByCriteria(string from, string to, DateTime departureDate)
+        {
+            var targetDate = departureDate.Date;
+
+            return _context.Flights
+                .Where(f =>
+                    f.From.AirportCode.ToLower() == from.ToLower() &&
+                    f.To.AirportCode.ToLower() == to.ToLower())
+                .AsEnumerable()
+                .Where(f =>
+                    DateTime.TryParse(f.DepartureTime, out var flightDepartureTime) &&
+                    flightDepartureTime.Date == targetDate)
+                .ToList();
+        }
     }
 }
