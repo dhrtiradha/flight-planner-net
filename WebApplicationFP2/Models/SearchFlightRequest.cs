@@ -19,7 +19,5 @@ namespace WebApplicationFP2.Models
             To = to;
             DepartureDate = departureDate;
         }
-
-        //public SearchFlightRequest() { }
     }
 }

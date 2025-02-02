@@ -62,7 +62,7 @@ namespace WebApplicationFP2.Controllers
                     return BadRequest("Invalid date format.");
                 }
 
-                if (!_flightService.IsFlightUnique(flight))
+                if (!_flightService.IsEntityUnique(flight))
                 {
                     return Conflict("Flight already exists.");
                 }

@@ -18,7 +18,7 @@ namespace FlightPlanner.Services
         
         public T GetById(int id)
         {
-            return GetById<T>(id);
+            return GetById<T>(id)!;
         }
 
         public ServiceResult Create(T entity)
@@ -41,19 +41,19 @@ namespace FlightPlanner.Services
             return List<T>();
         }
 
-        public bool IsFlightUnique(Flight entity)
+        public bool IsEntityUnique(T entity)
         {
-            return IsFlightUnique<T>;
+            return IsEntityUnique<T>(entity);
         }
 
-        public IEnumerable<Airport> SearchAirports(string search) 
+        public IEnumerable<Airport> SearchAirports(string search)
         {
-            return SearchAirports<T>(search);
+            return SearchEntitiesAirport(search);
         }
 
-        public List<T> GetFlightsByCriteria(string from, string to, DateTime departureDate)
+        public IEnumerable<Flight> GetFlightsByCriteria(string from, string to, DateTime departureDate)
         {
-            return GetFlightsByCriteria(from, to, departureDate);
+            return base.GetEntitiesByCriteriaFlight(from, to, departureDate);
         }
     }
 }

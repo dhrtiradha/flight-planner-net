@@ -14,5 +14,8 @@ namespace FlightPlanner.Core.Services
         ServiceResult Delete(T entity);
         ServiceResult Update(T entity);
         IEnumerable<T> List();
+        bool IsEntityUnique(T entity);
+        IEnumerable<Airport> SearchAirports(string search);
+        IEnumerable<Flight> GetFlightsByCriteria(string from, string to, DateTime departureDate);
     }
 }

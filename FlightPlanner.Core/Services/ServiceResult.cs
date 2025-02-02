@@ -14,9 +14,9 @@ namespace FlightPlanner.Core.Services
 
         }
 
-        public ServiceResult(bool suceeded)
+        public ServiceResult(bool succeeded)
         {
-            Succeeded = suceeded;
+            Succeeded = succeeded;
         }
 
         public Entity Entity { get; set; }
