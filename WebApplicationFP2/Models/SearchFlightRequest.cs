@@ -1,7 +1,8 @@
 ﻿using System.Text.Json.Serialization;
+
 namespace WebApplicationFP2.Models
 {
-    public class SearchFlightsRequest
+    public class SearchFlightRequest
     {
         [JsonPropertyName("from")]
         public string From { get; set; }
@@ -12,13 +13,11 @@ namespace WebApplicationFP2.Models
         [JsonPropertyName("departureDate")]
         public string DepartureDate { get; set; }
 
-        public SearchFlightsRequest(string from, string to, string departureDate)
+        public SearchFlightRequest(string from, string to, string departureDate)
         {
             From = from;
             To = to;
             DepartureDate = departureDate;
         }
-
-        public SearchFlightsRequest() { }
     }
 }

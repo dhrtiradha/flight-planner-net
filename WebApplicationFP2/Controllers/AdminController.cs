@@ -1,31 +1,42 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using FlightPlanner.Core.Models;
+using FlightPlanner.Core.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using WebApplicationFP2.Models;
-using WebApplicationFP2.Storage;
 
 namespace WebApplicationFP2.Controllers
 {
     [Route("admin-api")]
     [ApiController]
     [Authorize]
-    public class AdminController : ControllerBase
+    public class AdminController(IEntityService<Flight> flightService) : ControllerBase
     {
         private static readonly object _lock = new object();
+        private readonly IEntityService<Flight> _flightService = flightService;
 
         [Route("flights/{id}")]
         [HttpGet]
         public IActionResult GetFlight(int id)
         {
-            return NotFound();
+            var result = _flightService.GetById(id);
+
+            if (result == null)
+            {
+                return NotFound();
+            }
+
+            var response = GetFromFlight(result);
+            return Ok(result);
         }
 
         [HttpPost]
         [Route("flights")]
-        public IActionResult AddFlight(Flight flight)
+        public IActionResult AddFlight(FlightRequest request)
         {
             lock (_lock)
             {
+                var flight = GetFromRequest(request);
                 if (flight.From == null || flight.To == null || string.IsNullOrEmpty(flight.Carrier) ||
                 string.IsNullOrEmpty(flight.DepartureTime) || string.IsNullOrEmpty(flight.ArrivalTime) ||
                 string.IsNullOrEmpty(flight.From.AirportCode) || string.IsNullOrEmpty(flight.To.AirportCode)) 
@@ -50,28 +61,17 @@ namespace WebApplicationFP2.Controllers
                 { 
                     return BadRequest("Invalid date format.");
                 }
-                
-                var flights = FlightStorage.GetAllFlights(); 
-                var matchingFlights = flights.Where(f =>
-                f.From.AirportCode == flight.From.AirportCode &&
-                f.To.AirportCode == flight.To.AirportCode &&
-                f.Carrier == flight.Carrier &&
-                f.DepartureTime == flight.DepartureTime &&
-                f.ArrivalTime == flight.ArrivalTime
-                ).ToList();
-                
-                if (matchingFlights.Any()) 
-                { 
-                    return Conflict("The flight already exists.");
+
+                if (!_flightService.IsEntityUnique(flight))
+                {
+                    return Conflict("Flight already exists.");
                 }
-                else 
-                { 
-                    AirportStorage.AddAirport(flight.From); 
-                    AirportStorage.AddAirport(flight.To);
-                    
-                    var addedFlight = FlightStorage.AddFlight(flight); 
-                    return Created("", addedFlight);
-                }
+
+                var result = _flightService.Create(flight);
+                var response = GetFromFlight(flight);
+                response.Id = result.Entity.Id;
+
+                return Created("", response);
             }
         }
 
@@ -79,10 +79,66 @@ namespace WebApplicationFP2.Controllers
         [Route("flights/{id}")]
         public IActionResult DeleteFlight(int id)
         {
+            var flight = _flightService.GetById(id);
 
-            FlightStorage.DeleteFlight(id);
+            if (flight == null)
+            {
+                return Ok();
+            }
+
+            var result = _flightService.Delete(flight);
+
+            if (result == null)
+            {
+                return NotFound(); 
+            }
+
             return Ok();
+        }
 
+        private Flight GetFromRequest(FlightRequest request)
+        {
+            return new Flight
+            {
+                ArrivalTime = request.ArrivalTime,
+                Carrier = request.Carrier,
+                DepartureTime = request.DepartureTime,
+                From = new Airport
+                {
+                    AirportCode = request.From.Airport,
+                    City = request.From.City,
+                    Country = request.From.Country,
+                },
+                To = new Airport
+                {
+                    AirportCode = request.To.Airport,
+                    City = request.To.City,
+                    Country = request.To.Country,
+                },
+            };
+        }
+
+        private FlightResponse GetFromFlight(Flight flight)
+        {
+            return new FlightResponse
+            {
+                Id = flight.Id,
+                ArrivalTime = flight.ArrivalTime,
+                Carrier = flight.Carrier,
+                DepartureTime = flight.DepartureTime,
+                From = new AirportResponse
+                {
+                    Airport = flight.From.AirportCode,
+                    City = flight.From.City,
+                    Country = flight.From.Country,
+                },
+                To = new AirportResponse
+                {
+                    Airport = flight.To.AirportCode,
+                    City = flight.To.City,
+                    Country = flight.To.Country,
+                },
+            };
         }
     }
 }
